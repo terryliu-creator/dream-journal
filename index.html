@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>梦境笔记 · 明亮版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ========= 明亮暖色主题 (参考「好事发生」风格) ========= */
+:root {
+  --bg: #fff9ef;           /* 暖白基底 */
+  --surface: #ffffff;
+  --surface-2: #fff5e6;
+  --surface-3: #ffedd5;
+  --accent: #f59e0b;       /* 暖橙主色 */
+  --accent-dim: rgba(245, 158, 11, 0.12);
+  --accent-hover: rgba(245, 158, 11, 0.22);
+  --text: #3b2a1f;
+  --text-2: #7c5e3a;
+  --text-3: #b08968;
+  --border: rgba(245, 158, 11, 0.20);
+  --border-2: rgba(245, 158, 11, 0.40);
+  --r: 10px;
+  --r-lg: 16px;
+  --font: 'Noto Serif SC', serif;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100dvh;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.8;}
+
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 90% 70%, rgba(249, 115, 22, 0.04) 0%, transparent 60%),
+    radial-gradient(1px 1px at 18% 25%, rgba(245,158,11,0.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 72% 18%, rgba(245,158,11,0.15) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 44% 72%, rgba(245,158,11,0.1) 0%,transparent 100%),
+    radial-gradient(1px 1px at 86% 58%, rgba(245,158,11,0.12) 0%,transparent 100%),
+    radial-gradient(1px 1px at 11% 63%, rgba(245,158,11,0.1) 0%,transparent 100%);
+}
+
+#app{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 16px 100px;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 6px;}
+.logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:500;letter-spacing:0.04em;color:var(--text);}
+.logo-moon{width:30px;height:30px;background:var(--accent-dim);border:1px solid var(--border-2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);}
+.icon-btn{width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all 0.15s;font-family:var(--font);}
+.icon-btn:hover{background:var(--accent-dim);border-color:var(--border-2);color:var(--accent);}
+
+/* NAV */
+nav{display:flex;gap:0;margin:14px 0 20px;background:var(--surface);border-radius:var(--r);padding:4px;border:1px solid var(--border);box-shadow:var(--card-shadow);}
+.tab{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:14px;color:var(--text-2);cursor:pointer;transition:all 0.15s;font-family:var(--font);border:none;background:transparent;letter-spacing:0.02em;}
+.tab.active{background:var(--surface-3);color:var(--accent);font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.02);}
+.tab:hover:not(.active){color:var(--text);}
+
+/* VIEWS */
+.view{display:none;animation:fadeIn 0.2s ease;}
+.view.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* DATE ROW */
+.date-row{margin-bottom:12px;}
+.date-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text-3);font-size:12px;padding:5px 12px;cursor:pointer;font-family:var(--font);transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;letter-spacing:0.02em;box-shadow:var(--card-shadow);}
+.date-btn:hover{border-color:var(--border-2);color:var(--accent);background:var(--surface-2);}
+#date-input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+
+/* TEXTAREA — 明亮卡片 */
+.dream-textarea{
+  width:100%;min-height:210px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  color:var(--text);font-family:var(--font);font-size:15px;line-height:2;
+  padding:20px 22px;resize:vertical;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;letter-spacing:0.015em;
+  box-shadow:var(--card-shadow);
+}
+.dream-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,0.1);}
+.dream-textarea::placeholder{color:var(--text-3);font-style:italic;font-weight:300;}
+
+/* OPTIONAL SECTION */
+.optional-section{margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--card-shadow);}
+.optional-toggle{width:100%;text-align:left;background:none;border:none;color:var(--text-2);font-size:12px;font-family:var(--font);padding:9px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:color 0.15s;letter-spacing:0.03em;}
+.optional-toggle:hover{color:var(--accent);}
+.arrow{transition:transform 0.2s;font-size:9px;opacity:0.6;}
+.optional-toggle.open .arrow{transform:rotate(180deg);}
+.optional-body{padding:0 14px 16px;display:none;}
+.optional-body.open{display:block;}
+.field-label{font-size:10px;color:var(--text-3);margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:0.1em;}
+
+/* PILLS */
+.pills{display:flex;flex-wrap:wrap;gap:6px;}
+.pill{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:12px;cursor:pointer;font-family:var(--font);transition:all 0.15s;white-space:nowrap;}
+.pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.pill.selected{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:500;}
+.pill[data-emotion="positive"].selected{background:#fef3c7;border-color:#f59e0b;color:#b45309;}
+.pill[data-emotion="negative"].selected{background:#fee2e2;border-color:#f87171;color:#b91c1c;}
+.pill[data-emotion="neutral"].selected{background:#f3f4f6;border-color:#9ca3af;color:#4b5563;}
+.pill[data-emotion="mixed"].selected{background:#f3e8ff;border-color:#c084fc;color:#7e22ce;}
+
+/* TAGS */
+.tags-container{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px;min-height:38px;cursor:text;}
+.tag{background:var(--accent-dim);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:2px 8px;font-size:12px;color:var(--accent);display:flex;align-items:center;gap:4px;}
+.tag-remove{cursor:pointer;opacity:0.5;font-size:10px;background:none;border:none;color:inherit;padding:0;line-height:1;}
+.tag-remove:hover{opacity:1;}
+.tag-input{border:none;background:transparent;color:var(--text);font-family:var(--font);font-size:13px;outline:none;min-width:80px;flex:1;}
+.tag-input::placeholder{color:var(--text-3);}
+
+/* STAR */
+.star-row{display:flex;align-items:center;gap:8px;margin-top:14px;}
+.star-btn{background:none;border:none;cursor:pointer;font-size:19px;transition:transform 0.15s;line-height:1;padding:0;color:#fbbf24;}
+.star-btn:hover{transform:scale(1.15);}
+.star-label{font-size:12px;color:var(--text-3);}
+
+/* CHAR COUNT */
+.char-hint{text-align:right;font-size:11px;color:var(--text-3);margin-top:5px;}
+
+/* SUBMIT */
+.btn-primary{width:100%;padding:14px;margin-top:14px;background:var(--accent);border:none;border-radius:var(--r);color:#fff;font-size:15px;font-family:var(--font);font-weight:500;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.btn-primary:hover{opacity:0.9;background:#ea8c00;transform:translateY(-1px);}
+.btn-primary:active{transform:scale(0.99);}
+
+/* HISTORY */
+.search-bar{position:relative;margin-bottom:10px;}
+.search-bar input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:14px;padding:10px 14px 10px 38px;outline:none;transition:border-color 0.2s;box-shadow:var(--card-shadow);}
+.search-bar input:focus{border-color:var(--accent);}
+.search-bar input::placeholder{color:var(--text-3);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:13px;pointer-events:none;}
+
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.filter-chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:12px;cursor:pointer;font-family:var(--font);transition:all 0.15s;box-shadow:var(--card-shadow);}
+.filter-chip:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-dim);}
+.filter-chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:500;}
+
+/* DREAM CARDS */
+.dream-list{display:flex;flex-direction:column;gap:8px;}
+.dream-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:all 0.2s;cursor:pointer;box-shadow:var(--card-shadow);}
+.dream-card:hover{border-color:var(--accent);box-shadow:0 4px 12px rgba(245,158,11,0.08);}
+.dream-card.expanded{border-color:var(--accent);}
+
+.card-header{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;}
+.card-date{font-size:12px;color:var(--text-3);white-space:nowrap;padding-top:3px;min-width:66px;}
+.card-body{flex:1;min-width:0;}
+.card-preview{font-size:14px;color:var(--text-2);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-preview.empty{color:var(--text-3);font-style:italic;}
+.card-tags-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.card-meta-row{display:flex;align-items:center;gap:5px;margin-top:5px;}
+.card-star-right{margin-left:auto;font-size:13px;flex-shrink:0;color:#fbbf24;}
+
+.badge{font-size:11px;padding:2px 8px;border-radius:4px;font-family:var(--font);}
+.badge-positive{background:#fef3c7;color:#b45309;}
+.badge-negative{background:#fee2e2;color:#b91c1c;}
+.badge-neutral{background:#f3f4f6;color:#4b5563;}
+.badge-mixed{background:#f3e8ff;color:#7e22ce;}
+.badge-clarity{background:var(--accent-dim);color:var(--accent);}
+
+.card-expanded{border-top:1px solid var(--border);padding:16px 18px;display:none;animation:fadeIn 0.15s ease;background:var(--surface-2);}
+.dream-card.expanded .card-expanded{display:block;}
+.card-full-content{font-size:14px;line-height:2;color:var(--text);white-space:pre-wrap;margin-bottom:14px;letter-spacing:0.015em;}
+
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-sm{padding:6px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:12px;font-family:var(--font);cursor:pointer;transition:all 0.15s;}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.btn-sm.danger:hover{border-color:#f87171;color:#dc2626;background:#fee2e2;}
+.btn-sm.accent{border-color:var(--accent);color:var(--accent);}
+.btn-sm.accent:hover{background:var(--accent-dim);}
+
+.edit-textarea{width:100%;min-height:120px;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.9;padding:12px;resize:vertical;outline:none;margin-bottom:10px;}
+.edit-textarea:focus{border-color:var(--accent);}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--card-shadow);}
+.empty-icon{font-size:34px;margin-bottom:12px;}
+.empty-text{font-size:14px;color:var(--text-3);line-height:1.8;}
+
+/* STATS BAR */
+.stats-bar{display:flex;gap:16px;margin-bottom:16px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--card-shadow);}
+.stat{text-align:center;flex:1;}
+.stat-num{font-size:18px;font-weight:500;color:var(--accent);}
+.stat-label{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.07em;margin-top:1px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-lg);padding:24px;width:90%;max-width:400px;position:relative;transform:translateY(8px);transition:transform 0.2s;box-shadow:0 20px 25px -12px rgba(0,0,0,0.15);}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:20px;color:var(--text);}
+.modal-section-label{font-size:10px;text-transform:uppercase;letter-spacing:0.09em;color:var(--text-3);margin-bottom:8px;margin-top:20px;}
+.modal-section-label:first-of-type{margin-top:0;}
+.modal-row{display:flex;gap:8px;margin-bottom:8px;}
+.btn-modal{flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border-2);background:var(--surface);color:var(--text-2);font-size:13px;font-family:var(--font);cursor:pointer;transition:all 0.15s;}
+.btn-modal:hover{background:var(--surface-2);color:var(--accent);border-color:var(--accent);}
+.btn-modal.danger:hover{border-color:#f87171;color:#dc2626;background:#fee2e2;}
+.modal-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:13px;padding:8px 12px;outline:none;margin-bottom:6px;}
+.modal-input:focus{border-color:var(--accent);}
+.modal-hint{font-size:11px;color:var(--text-3);line-height:1.7;}
+.modal-close{position:absolute;top:14px;right:14px;}
+.modal-about{margin-top:20px;font-size:11px;color:var(--text-3);text-align:center;line-height:1.8;}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
+.toast{background:var(--surface-3);border:1px solid var(--border-2);border-radius:var(--r);padding:9px 18px;font-size:13px;color:var(--text);animation:toastIn 0.2s ease forwards;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,0.05);}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--text-3);border-radius:2px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-moon">🌙</div>
+      梦境笔记
+    </div>
+    <button class="icon-btn" id="settings-btn" title="设置">⚙</button>
+  </header>
+
+  <nav>
+    <button class="tab active" data-tab="record">记录梦境</button>
+    <button class="tab" data-tab="history">过往梦境</button>
+  </nav>
+
+  <!-- RECORD VIEW -->
+  <div class="view active" id="view-record">
+    <div class="date-row">
+      <button class="date-btn" id="date-btn">📅 <span id="date-display"></span></button>
+      <input type="date" id="date-input">
+    </div>
+
+    <textarea class="dream-textarea" id="dream-content"
+      placeholder="把这个梦记下来……" rows="9"></textarea>
+    <div class="char-hint" id="char-hint">0 字</div>
+
+    <div class="optional-section">
+      <button class="optional-toggle" id="optional-toggle">
+        <span>＋ 添加分类与标签（可选）</span>
+        <span class="arrow">▾</span>
+      </button>
+      <div class="optional-body" id="optional-body">
+        <div class="field-label">情绪基调</div>
+        <div class="pills" id="emotion-pills">
+          <button class="pill" data-emotion="positive">😌 正向</button>
+          <button class="pill" data-emotion="negative">😰 负向</button>
+          <button class="pill" data-emotion="neutral">😑 中性</button>
+          <button class="pill" data-emotion="mixed">😵 混合</button>
+        </div>
+
+        <div class="field-label">记忆清晰度</div>
+        <div class="pills" id="clarity-pills">
+          <button class="pill" data-clarity="none">全无</button>
+          <button class="pill" data-clarity="fragments">碎片</button>
+          <button class="pill" data-clarity="segments">片段</button>
+          <button class="pill" data-clarity="narrative">完整</button>
+        </div>
+
+        <div class="field-label">关键词标签</div>
+        <div class="tags-container" id="tags-container">
+          <input type="text" class="tag-input" id="tag-input" placeholder="输入后按 Enter 添加">
+        </div>
+
+        <div class="star-row">
+          <button class="star-btn" id="star-btn">☆</button>
+          <span class="star-label">收藏这条梦境</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="submit-btn">保存记录</button>
+  </div>
+
+  <!-- HISTORY VIEW -->
+  <div class="view" id="view-history">
+    <div class="stats-bar" id="stats-bar"></div>
+
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="搜索梦境内容或标签……">
+    </div>
+
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-chip active" data-filter="all">全部</button>
+      <button class="filter-chip" data-filter="positive">😌 正向</button>
+      <button class="filter-chip" data-filter="negative">😰 负向</button>
+      <button class="filter-chip" data-filter="neutral">😑 中性</button>
+      <button class="filter-chip" data-filter="mixed">😵 混合</button>
+      <button class="filter-chip" data-filter="starred">⭐ 收藏</button>
+    </div>
+
+    <div class="dream-list" id="dream-list"></div>
+  </div>
+
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <button class="icon-btn modal-close" id="modal-close">✕</button>
+    <div class="modal-title">设置</div>
+
+    <div class="modal-section-label">导出数据</div>
+    <div class="modal-row">
+      <button class="btn-modal" id="export-json">导出 JSON</button>
+      <button class="btn-modal" id="export-csv">导出 CSV</button>
+    </div>
+
+    <div class="modal-section-label">导入恢复</div>
+    <div class="modal-row">
+      <button class="btn-modal" id="import-btn">从 JSON 导入</button>
+      <input type="file" id="import-input" accept=".json" style="display:none">
+    </div>
+
+    <div class="modal-section-label">数据管理</div>
+    <div class="modal-row">
+      <button class="btn-modal danger" id="clear-all-btn">清空所有记录</button>
+    </div>
+
+    <div class="modal-about">
+      梦境笔记 · 明亮版<br>本地存储，隐私优先
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ================================================================
+// CONSTANTS
+// ================================================================
+const EMOTION_LABEL = { positive:'正向', negative:'负向', neutral:'中性', mixed:'混合' };
+const CLARITY_LABEL = { none:'全无', fragments:'碎片', segments:'片段', narrative:'完整' };
+
+// ================================================================
+// STATE
+// ================================================================
+const S = {
+  date: todayStr(),
+  emotion: null,
+  clarity: null,
+  tags: [],
+  starred: false,
+  expandedId: null,
+  filter: 'all',
+  search: ''
+};
+
+// ================================================================
+// STORAGE
+// ================================================================
+function getAll() {
+  try { return JSON.parse(localStorage.getItem('dreams') || '[]'); } catch { return []; }
+}
+function setAll(arr) { localStorage.setItem('dreams', JSON.stringify(arr)); }
+function addDream(d) { const all = getAll(); all.unshift(d); setAll(all); }
+function updateDream(id, patch) {
+  const all = getAll();
+  const i = all.findIndex(d => d.id === id);
+  if (i > -1) { all[i] = { ...all[i], ...patch, updatedAt: new Date().toISOString() }; setAll(all); }
+}
+function removeDream(id) { setAll(getAll().filter(d => d.id !== id)); }
+
+// ================================================================
+// UTILS
+// ================================================================
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+function formatDateFull(s) {
+  if (!s) return '';
+  const [y, m, d] = s.split('-');
+  return `${y} 年 ${parseInt(m)} 月 ${parseInt(d)} 日`;
+}
+function formatDateShort(s) {
+  if (!s) return '';
+  const [, m, d] = s.split('-');
+  return `${parseInt(m)}/${parseInt(d)}`;
+}
+
+function esc(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+function download(name, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+(function init() {
+  document.getElementById('date-display').textContent = formatDateFull(S.date);
+  document.getElementById('date-input').value = S.date;
+  renderHistory();
+  setTimeout(() => document.getElementById('dream-content').focus(), 150);
+})();
+
+// ================================================================
+// TABS
+// ================================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'history') renderHistory();
+    if (tab.dataset.tab === 'record') setTimeout(() => document.getElementById('dream-content').focus(), 100);
+  });
+});
+
+// ================================================================
+// DATE
+// ================================================================
+document.getElementById('date-btn').addEventListener('click', () => {
+  const inp = document.getElementById('date-input');
+  inp.showPicker ? inp.showPicker() : inp.click();
+});
+document.getElementById('date-input').addEventListener('change', e => {
+  S.date = e.target.value;
+  document.getElementById('date-display').textContent = formatDateFull(S.date);
+});
+
+// ================================================================
+// TEXTAREA CHAR COUNT
+// ================================================================
+document.getElementById('dream-content').addEventListener('input', function() {
+  document.getElementById('char-hint').textContent = this.value.length + ' 字';
+});
+
+// ================================================================
+// OPTIONAL TOGGLE
+// ================================================================
+document.getElementById('optional-toggle').addEventListener('click', function() {
+  this.classList.toggle('open');
+  document.getElementById('optional-body').classList.toggle('open');
+});
+
+// ================================================================
+// EMOTION PILLS
+// ================================================================
+document.getElementById('emotion-pills').addEventListener('click', e => {
+  const pill = e.target.closest('.pill[data-emotion]');
+  if (!pill) return;
+  const val = pill.dataset.emotion;
+  S.emotion = S.emotion === val ? null : val;
+  document.querySelectorAll('#emotion-pills .pill').forEach(p =>
+    p.classList.toggle('selected', p.dataset.emotion === S.emotion));
+});
+
+// ================================================================
+// CLARITY PILLS
+// ================================================================
+document.getElementById('clarity-pills').addEventListener('click', e => {
+  const pill = e.target.closest('.pill[data-clarity]');
+  if (!pill) return;
+  const val = pill.dataset.clarity;
+  S.clarity = S.clarity === val ? null : val;
+  document.querySelectorAll('#clarity-pills .pill').forEach(p =>
+    p.classList.toggle('selected', p.dataset.clarity === S.clarity));
+});
+
+// ================================================================
+// TAGS
+// ================================================================
+const tagInput = document.getElementById('tag-input');
+tagInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === '，' || e.key === ',') {
+    e.preventDefault();
+    const v = tagInput.value.trim();
+    if (v && !S.tags.includes(v)) { S.tags.push(v); renderTagsUI(); }
+    tagInput.value = '';
+  }
+  if (e.key === 'Backspace' && !tagInput.value && S.tags.length) {
+    S.tags.pop(); renderTagsUI();
+  }
+});
+document.getElementById('tags-container').addEventListener('click', () => tagInput.focus());
+
+function renderTagsUI() {
+  const c = document.getElementById('tags-container');
+  c.querySelectorAll('.tag').forEach(el => el.remove());
+  S.tags.forEach(t => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${esc(t)}<button class="tag-remove" data-tag="${esc(t)}">✕</button>`;
+    c.insertBefore(tag, tagInput);
+  });
+  c.querySelectorAll('.tag-remove').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      S.tags = S.tags.filter(x => x !== btn.dataset.tag);
+      renderTagsUI();
+    })
+  );
+}
+
+// ================================================================
+// STAR
+// ================================================================
+document.getElementById('star-btn').addEventListener('click', function() {
+  S.starred = !S.starred;
+  this.textContent = S.starred ? '⭐' : '☆';
+  document.querySelector('.star-label').textContent = S.starred ? '已收藏' : '收藏这条梦境';
+});
+
+// ================================================================
+// SUBMIT
+// ================================================================
+document.getElementById('submit-btn').addEventListener('click', () => {
+  const content = document.getElementById('dream-content').value.trim();
+  if (!content) { toast('先写下你的梦……'); document.getElementById('dream-content').focus(); return; }
+  addDream({
+    id: Date.now().toString(),
+    date: S.date,
+    content,
+    emotion: S.emotion,
+    clarity: S.clarity,
+    tags: [...S.tags],
+    starred: S.starred,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  });
+  resetForm();
+  toast('梦境已保存 ✓');
+});
+
+function resetForm() {
+  document.getElementById('dream-content').value = '';
+  document.getElementById('char-hint').textContent = '0 字';
+  S.emotion = null; S.clarity = null; S.tags = []; S.starred = false;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+  document.getElementById('star-btn').textContent = '☆';
+  document.querySelector('.star-label').textContent = '收藏这条梦境';
+  renderTagsUI();
+  S.date = todayStr();
+  document.getElementById('date-display').textContent = formatDateFull(S.date);
+  document.getElementById('date-input').value = S.date;
+  const toggle = document.getElementById('optional-toggle');
+  const body = document.getElementById('optional-body');
+  toggle.classList.remove('open');
+  body.classList.remove('open');
+}
+
+// ================================================================
+// HISTORY RENDER
+// ================================================================
+function renderHistory() {
+  let all = getAll();
+
+  const stars = all.filter(d => d.starred).length;
+  const withEmotion = all.filter(d => d.emotion).length;
+  document.getElementById('stats-bar').innerHTML =
+    `<div class="stat"><div class="stat-num">${all.length}</div><div class="stat-label">总记录</div></div>` +
+    `<div class="stat"><div class="stat-num">${stars}</div><div class="stat-label">已收藏</div></div>` +
+    `<div class="stat"><div class="stat-num">${withEmotion}</div><div class="stat-label">已分类</div></div>`;
+
+  if (S.search) {
+    const q = S.search.toLowerCase();
+    all = all.filter(d => d.content.toLowerCase().includes(q) || d.tags.some(t => t.toLowerCase().includes(q)));
+  }
+
+  if (S.filter === 'starred') all = all.filter(d => d.starred);
+  else if (S.filter !== 'all') all = all.filter(d => d.emotion === S.filter);
+
+  const list = document.getElementById('dream-list');
+  if (!all.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🌙</div><div class="empty-text">${
+      getAll().length === 0 ? '还没有任何记录<br>去记下今晚的梦吧' : '没有符合条件的梦境'
+    }</div></div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  all.forEach(dream => list.appendChild(makeCard(dream)));
+}
+
+function makeCard(dream) {
+  const card = document.createElement('div');
+  card.className = 'dream-card' + (S.expandedId === dream.id ? ' expanded' : '');
+  card.dataset.id = dream.id;
+
+  const eb = dream.emotion ? `<span class="badge badge-${dream.emotion}">${EMOTION_LABEL[dream.emotion]}</span>` : '';
+  const cb = dream.clarity ? `<span class="badge badge-clarity">${CLARITY_LABEL[dream.clarity]}</span>` : '';
+  const tagsHtml = dream.tags.map(t => `<span class="tag" style="font-size:11px;">${esc(t)}</span>`).join('');
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-date">${formatDateShort(dream.date)}</div>
+      <div class="card-body">
+        <div class="card-preview ${!dream.content ? 'empty' : ''}">${dream.content ? esc(dream.content) : '（未记录内容）'}</div>
+        ${dream.tags.length ? `<div class="card-tags-row">${tagsHtml}</div>` : ''}
+        ${eb || cb ? `<div class="card-meta-row">${eb}${cb}</div>` : ''}
+      </div>
+      <div class="card-star-right">${dream.starred ? '⭐' : ''}</div>
+    </div>
+    <div class="card-expanded">
+      <div id="cc-${dream.id}" class="card-full-content">${esc(dream.content)}</div>
+      <div id="ca-${dream.id}" class="card-actions">
+        <button class="btn-sm" data-action="edit">编辑内容</button>
+        <button class="btn-sm" data-action="star">${dream.starred ? '取消收藏' : '收藏'}</button>
+        <button class="btn-sm danger" data-action="delete">删除</button>
+      </div>
+    </div>`;
+
+  card.querySelector('.card-header').addEventListener('click', () => {
+    S.expandedId = S.expandedId === dream.id ? null : dream.id;
+    renderHistory();
+  });
+  card.querySelector('.card-expanded').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (btn) handleAction(btn.dataset.action, dream.id, dream);
+  });
+  return card;
+}
+
+function handleAction(action, id, dream) {
+  if (action === 'delete') {
+    if (!confirm('确定删除这条梦境？')) return;
+    removeDream(id); S.expandedId = null; renderHistory(); toast('已删除');
+  } else if (action === 'star') {
+    updateDream(id, { starred: !dream.starred }); S.expandedId = id; renderHistory();
+  } else if (action === 'edit') {
+    startEdit(id, dream);
+  }
+}
+
+function startEdit(id, dream) {
+  const ccEl = document.getElementById(`cc-${id}`);
+  const caEl = document.getElementById(`ca-${id}`);
+  const ta = document.createElement('textarea');
+  ta.className = 'edit-textarea'; ta.value = dream.content; ta.rows = 6;
+  ccEl.replaceWith(ta); ta.focus();
+  caEl.innerHTML = `
+    <button class="btn-sm accent" id="save-edit-${id}">保存修改</button>
+    <button class="btn-sm" id="cancel-edit-${id}">取消</button>`;
+  document.getElementById(`save-edit-${id}`).addEventListener('click', () => {
+    const v = ta.value.trim();
+    if (!v) { toast('内容不能为空'); return; }
+    updateDream(id, { content: v }); S.expandedId = id; renderHistory(); toast('已更新 ✓');
+  });
+  document.getElementById(`cancel-edit-${id}`).addEventListener('click', () => {
+    S.expandedId = id; renderHistory();
+  });
+}
+
+// ================================================================
+// SEARCH & FILTER
+// ================================================================
+document.getElementById('search-input').addEventListener('input', e => { S.search = e.target.value; renderHistory(); });
+document.getElementById('filter-bar').addEventListener('click', e => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  S.filter = chip.dataset.filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === S.filter));
+  renderHistory();
+});
+
+// ================================================================
+// SETTINGS MODAL
+// ================================================================
+document.getElementById('settings-btn').addEventListener('click', () =>
+  document.getElementById('settings-modal').classList.add('open'));
+document.getElementById('modal-close').addEventListener('click', () =>
+  document.getElementById('settings-modal').classList.remove('open'));
+document.getElementById('settings-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('settings-modal'))
+    document.getElementById('settings-modal').classList.remove('open');
+});
+
+document.getElementById('export-json').addEventListener('click', () => {
+  const all = getAll();
+  if (!all.length) { toast('暂无数据'); return; }
+  download(`dreams_${todayStr()}.json`, JSON.stringify(all, null, 2), 'application/json');
+  toast('JSON 导出成功 ✓');
+});
+
+document.getElementById('export-csv').addEventListener('click', () => {
+  const all = getAll();
+  if (!all.length) { toast('暂无数据'); return; }
+  const headers = ['id','date','content','emotion','clarity','tags','starred','createdAt'];
+  const rows = all.map(d => [
+    d.id, d.date,
+    `"${(d.content||'').replace(/"/g,'""').replace(/\n/g,' ')}"`,
+    d.emotion||'', d.clarity||'',
+    `"${d.tags.join(',')}"`,
+    d.starred?'是':'否', d.createdAt
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  download(`dreams_${todayStr()}.csv`, '\ufeff'+csv, 'text/csv');
+  toast('CSV 导出成功 ✓');
+});
+
+document.getElementById('import-btn').addEventListener('click', () =>
+  document.getElementById('import-input').click());
+
+document.getElementById('import-input').addEventListener('change', e => {
+  const file = e.target.files?.[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data)) throw new Error();
+      const current = getAll();
+      const ids = new Set(current.map(d => d.id));
+      const added = data.filter(d => !ids.has(d.id));
+      setAll([...current, ...added].sort((a, b) => b.date.localeCompare(a.date)));
+      renderHistory(); toast(`已导入 ${added.length} 条记录 ✓`);
+    } catch { toast('导入失败：格式不正确'); }
+  };
+  reader.readAsText(file); e.target.value = '';
+});
+
+document.getElementById('clear-all-btn').addEventListener('click', () => {
+  if (!confirm('确定清空所有梦境记录？此操作不可撤销。')) return;
+  setAll([]); S.expandedId = null; renderHistory();
+  document.getElementById('settings-modal').classList.remove('open');
+  toast('已清空所有记录');
+});
+</script>
+</body>
+</html>
